@@ -84,7 +84,7 @@ int cl_application::exec_app() {
 	string text;
 	// Такты
 	while (system_indicator) {
-		signal_object->emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_reader), text)
+		signal_object->emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_reader), text);
 	}
 	return 0;
 }

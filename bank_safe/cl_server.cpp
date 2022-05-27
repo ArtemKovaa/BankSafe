@@ -11,21 +11,23 @@ void cl_server::emit_signal_to_remote_control(string& text) {
 }
 
 void cl_server::handle_signal_from_remote_control(string text) {
-	int choice = stoi(text.substr(0, text.find(' ')));
+	int choice = stoi(text.substr(0, text.find(' '))); // Выбор
 	text = text.substr(text.find(' ') + 1, text.length());
-	int number = stoi(text.substr(0, text.find(' ')));
-	text = text.substr(text.find(' ') + 1, text.length());
+	int number = stoi(text.substr(0, text.find(' '))); // Номер ячейки
+	text = text.substr(text.find(' ') + 1, text.length()); // Остаток - клиентский ключ
 	switch (choice) {
 	case 1:
+		// Проходимся по вектору структур ячеек и ищем нужную по ее номеру
 		for (int i = 0; i < safe_boxes_information.size(); i++) {
+			// Если нашли
 			if (safe_boxes_information[i]->number == number && safe_boxes_information[i]->client_key == stoi(text)) {
-				text = "1";
-				emit_signal(SIGNAL_D(cl_server::emit_signal_to_remote_control), text); 
+				text = "1"; // Индикатор того, что ключ подошел
+				emit_signal(SIGNAL_D(cl_server::emit_signal_to_remote_control), text); // Отправляем в пульт
 				return;
 			}
 		}
-		text = "0";
-		emit_signal(SIGNAL_D(cl_server::emit_signal_to_remote_control), text);
+		text = "0"; // Индикатор того, что ключ не подошел
+		emit_signal(SIGNAL_D(cl_server::emit_signal_to_remote_control), text); // Отправляем в пульт
 		break;
 	case 2:
 
