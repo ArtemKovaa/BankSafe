@@ -35,7 +35,7 @@ void cl_application::build_tree_objects() {
 
 	signal_object = this;
 	string text;
-	signal_object->emit_signal(get_signal_method(signal_object), text);
+	signal_object->emit_signal(SIGNAL_D(cl_application::signal_method), text);
 
 	cl_safe* ptr = (cl_safe*)find_object_by_name("safe");
 	ptr->fill_safe();
@@ -60,16 +60,31 @@ void cl_application::build_tree_objects() {
 
 	signal_object = find_object_by_name("server");
 	signal_object->set_connection(SIGNAL_D(cl_server::emit_signal_to_remote_control), handler_object, HANDLER_D(cl_remote_control::handle_signal_from_server));
+
+	signal_object = find_object_by_name("system");
+	handler_object = find_object_by_name("screen");
+	handler_object->set_readiness(1);
+	signal_object->set_connection(SIGNAL_D(cl_application::emit_signal_to_screen), handler_object, HANDLER_D(cl_screen::handle_signal_from_system));
+
+	signal_object = find_object_by_name("remote_control");
+	signal_object->set_connection(SIGNAL_D(cl_remote_control::emit_signal_to_screen), handler_object, HANDLER_D(cl_screen::handle_signal_from_remote_control));
+
+	signal_object = find_object_by_name("reader");
+	handler_object = find_object_by_name("remote_control");
+	signal_object->set_connection(SIGNAL_D(cl_reader::emit_signal_to_remote_control), handler_object, HANDLER_D(cl_remote_control::handle_signal_from_reader));
+
+	emit_signal(SIGNAL_D(cl_application::emit_signal_to_screen), text); // Вывод первого сообщения в консоль (ГОТОВ К РАБОТЕ)
 }
 
 // Метод запуска приложения
 int cl_application::exec_app() {
-	set_readiness_for_all();
+	set_readiness_for_all(); // Установка готовности всем, учитывая разные готовности
 	cl_base* signal_object = find_object_by_name("remote_control");
 	cl_base* handler_object = find_object_by_name("reader");
 	string text;
+	// Такты
 	while (system_indicator) {
-		signal_object->emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_reader), text);
+		signal_object->emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_reader), text)
 	}
 	return 0;
 }
@@ -123,4 +138,8 @@ cl_base::TYPE_HANDLER cl_application::get_handler_method(cl_base* pointer) {
 
 void cl_application::handle_signal_from_remote_control() {
 	system_indicator = false;
+}
+
+void cl_application::emit_signal_to_screen(string& text) {
+	text = "Ready to work";
 }

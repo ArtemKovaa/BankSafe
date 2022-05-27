@@ -10,8 +10,27 @@ void cl_server::emit_signal_to_remote_control(string& text) {
 
 }
 
-void cl_server::handle_signal_from_remote_control(string input) {
+void cl_server::handle_signal_from_remote_control(string text) {
+	int choice = stoi(text.substr(0, text.find(' ')));
+	text = text.substr(text.find(' ') + 1, text.length());
+	int number = stoi(text.substr(0, text.find(' ')));
+	text = text.substr(text.find(' ') + 1, text.length());
+	switch (choice) {
+	case 1:
+		for (int i = 0; i < safe_boxes_information.size(); i++) {
+			if (safe_boxes_information[i]->number == number && safe_boxes_information[i]->client_key == stoi(text)) {
+				text = "1";
+				emit_signal(SIGNAL_D(cl_server::emit_signal_to_remote_control), text); 
+				return;
+			}
+		}
+		text = "0";
+		emit_signal(SIGNAL_D(cl_server::emit_signal_to_remote_control), text);
+		break;
+	case 2:
 
+		break;
+	}
 }
 
 void cl_server::handle_signal_from_reader(string input) {

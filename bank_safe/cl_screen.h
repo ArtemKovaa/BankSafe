@@ -8,8 +8,8 @@ class cl_screen : public cl_base {
 
 public:
 	cl_screen(cl_base* parent, string name = "Default");
-	void signal_method(string& text);
-	void handler_method(string text);
+	void handle_signal_from_system(string text);
+	void handle_signal_from_remote_control(string text);
 };
 
 #endif

@@ -18,8 +18,7 @@ public:
 	cl_server(cl_base* parent, string name = "Default");
 	void emit_signal_to_remote_control(string& text);
 	void handle_signal_from_reader(string input);
-	void handle_signal_from_remote_control(string input);
-	void show_inf();
+	void handle_signal_from_remote_control(string text);
 };
 
 #endif

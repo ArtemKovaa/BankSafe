@@ -19,11 +19,12 @@ public:
 	cl_application(cl_base* parent);
 	void build_tree_objects();
 	int exec_app();
-	void signal_method(string& text);
-	void handler_method(string input);
 	cl_base::TYPE_SIGNAL get_signal_method(cl_base* pointer);
 	cl_base::TYPE_HANDLER get_handler_method(cl_base* pointer);
+	void signal_method(string& text);
+	void handler_method(string input);
 	void handle_signal_from_remote_control();
+	void emit_signal_to_screen(string& text);
 };
 
 #endif
