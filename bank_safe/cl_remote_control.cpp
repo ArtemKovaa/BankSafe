@@ -6,44 +6,57 @@ cl_remote_control::cl_remote_control(cl_base* parent, string name) :cl_base(pare
 	this->class_number = 2;
 }
 
-// Метод сигнала
-void cl_remote_control::signal_method(string& text) {
-	cout << "\nSignal from " << get_absolute_path();
-	text += " (class: 2)";
-}
+void cl_remote_control::emit_signal_to_reader(string& text) {}
 
-// Метод обработчика
-void cl_remote_control::handler_method(string text) {
-	string command;
+void cl_remote_control::handle_signal_from_reader(string text) {
 	int number;
-	if (text.find(' ') > 0 && text.find(' ') < text.length()) {
-		command = text.substr(text.find(' '));
-		number = stoi(text.substr(text.find(' ') + 1, text.length()));
-	}
-	else command = text;
+	string command = (text.substr(0, text.find(' ')));
+	text = text.substr(text.find(' ') + 1, text.length());
 
 	if (command == "BOX") {
+		command = "1 ";
+		command += text;
+		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_safe), command);
+	}
+	else if (command == "CLIENT_KEY") {
+		number = stoi(text.substr(0, text.find(' ')));
 
 	}
-	if (command == "CLIENT_KEY") {
+	else if (command == "BANK_KEY") {
+		number = stoi(text.substr(0, text.find(' ')));
 
 	}
-	if (command == "BANK_KEY") {
+	else if (command == "CLOSE_BOX") {
+		number = stoi(text.substr(0, text.find(' ')));
 
 	}
-	if (command == "CLOSE_BOX") {
+	else if (command == "CANCEL") {
 
 	}
-	if (command == "CANCEL") {
+	else if (command == "Turn off the safe ") {
 
 	}
-	if (command == "Turn off the safe ") {
+	else if (command == "SHOWTREE") {
 
 	}
-	if (command == "SHOWTREE") {
+}
 
-	}
+void cl_remote_control::emit_signal_to_safe(string& text) {
 
+}
 
-	cout << "\nSignal to " << get_absolute_path() << " Text: " << text;
+void cl_remote_control::handle_signal_from_safe(string text, int number) {
+
+}
+
+void cl_remote_control::emit_signal_to_server(string& text) {
+
+}
+
+void cl_remote_control::handle_signal_from_server(string text) {
+
+}
+
+void cl_remote_control::emit_signal_to_system() {
+
 }

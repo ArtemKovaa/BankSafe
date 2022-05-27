@@ -19,7 +19,7 @@ public:
 private:
 	string name;
 	cl_base* parent = nullptr;
-	int state = 1; // Состояние готовности объекта
+	int state = 0; // Состояние готовности объекта
 	struct connection_struct {
 		TYPE_SIGNAL signal_method;
 		cl_base* handler;
@@ -49,7 +49,7 @@ public:
 	string get_absolute_path(string absolute_path = "");
 	int get_class_number();
 	int get_readiness();
-	void set_readiness_for_all(int state);
+	void set_readiness_for_all();
 };
 
 #endif

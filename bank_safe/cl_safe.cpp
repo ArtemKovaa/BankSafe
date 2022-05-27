@@ -22,18 +22,36 @@ void cl_safe::fill_safe() {
 	}
 }
 
-// Метод сигнала
-void cl_safe::signal_method(string& text) {
-	cout << "\nSignal from " << get_absolute_path();
-	text += " (class: 3)";
-}
-
-// Метод обработчика
-void cl_safe::handler_method(string text) {
-	cout << "\nSignal to " << get_absolute_path() << " Text: " << text;
-}
-
 // Поиск ячейки в сейфе по ее номеру
 cl_base* cl_safe::find_safe_box(int number) {
 	return safe_boxes[(number / rows_count)][(number / columns_count) - 1];
+}
+
+void cl_safe::emit_signal_to_remote_control(string& text) {
+
+}
+
+void cl_safe::handle_signal_from_remote_control(string text) {
+	int choice = stoi(text.substr(0, text.find(' ')));
+	text = text.substr(text.find(' ') + 1, text.length());
+	int number;
+	switch (choice) {
+	case 1:
+		number = stoi(text);
+		for (int i = 0; i < rows_count - 1; i++) {
+			for (int j = 0; j < columns_count - 1; j++) {
+				if (safe_boxes[i][j]->get_number() =);
+			}
+		}
+		break;
+	case 2:
+
+		break;
+	case 3:
+
+		break;
+	case 4:
+
+		break;
+	}
 }

@@ -8,7 +8,7 @@ cl_reader::cl_reader(cl_base* parent, string name) :cl_base(parent, name) {
 }
 
 // Метод обработчика
-void cl_reader::handler_method(string input) {
+void cl_reader::handle_signal(string input) {
 	if (input == "system") {
 		getline(cin, input);
 		emit_signal(SIGNAL_D(cl_reader::emit_signal_to_system), input);
@@ -18,7 +18,8 @@ void cl_reader::handler_method(string input) {
 		}
 	}
 	else {
-
+		getline(cin, input);
+		emit_signal(SIGNAL_D(cl_reader::emit_signal_to_remote_control), input);
 	}
 	
 }

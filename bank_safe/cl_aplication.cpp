@@ -5,154 +5,71 @@ cl_application::cl_application(cl_base* parent) :cl_base(parent) {
 }
 
 void cl_application::build_tree_objects() {
+	// Построение дерева системы
 	set_name("system");
 	cl_base* signal_object, * handler_object; // Объект, выдающий сигнал, и целевой объект
 
 	cl_base* current_object = this;
+	current_object->set_readiness(1);
 	new cl_remote_control(current_object, "remote_control");
 	new cl_server(current_object, "server");
 
 	current_object = find_object_by_name("remote_control");
+	current_object->set_readiness(1);
 	new cl_reader(current_object, "reader");
 	new cl_screen(current_object, "screen");
 
 	// Связываем систему с ридером
 	signal_object = this;
 	handler_object = find_object_by_name("reader");
-	signal_object->set_connection(SIGNAL_D(cl_application::signal_method), handler_object, HANDLER_D(cl_reader::handler_method));
+	handler_object->set_readiness(1);
+	signal_object->set_connection(SIGNAL_D(cl_application::signal_method), handler_object, HANDLER_D(cl_reader::handle_signal));
 
 	// Связываем ридер с сервером и системой
 	signal_object = find_object_by_name("reader");
 	handler_object = this;
 	signal_object->set_connection(SIGNAL_D(cl_reader::emit_signal_to_system), handler_object, HANDLER_D(cl_application::handler_method));
-	handler_object = find_object_by_name("server");;
+	handler_object = find_object_by_name("server");
+	handler_object->set_readiness(1);
 	signal_object->set_connection(SIGNAL_D(cl_reader::emit_signal_to_server), handler_object, HANDLER_D(cl_server::handle_signal_from_reader));
 
 	signal_object = this;
-	string text = "";
+	string text;
 	signal_object->emit_signal(get_signal_method(signal_object), text);
 
 	cl_safe* ptr = (cl_safe*)find_object_by_name("safe");
 	ptr->fill_safe();
 
-	current_object = find_object_by_name("system");
-	cl_server* ptr1 = (cl_server*)find_object_by_name("server");
-	ptr1->show_inf();
+	// Установка всех связей системы
+	signal_object = find_object_by_name("remote_control");
+	handler_object = find_object_by_name("reader");
+	signal_object->set_connection(SIGNAL_D(cl_remote_control::emit_signal_to_reader), handler_object, HANDLER_D(cl_reader::handle_signal));
 
+	handler_object = find_object_by_name("safe");
+	signal_object->set_connection(SIGNAL_D(cl_remote_control::emit_signal_to_safe), handler_object, HANDLER_D(cl_safe::handle_signal_from_remote_control));
 
-	string signal_object_path, handler_object_path; // Пути выдающего сигнал и целевого объекта
+	handler_object = find_object_by_name("system");
+	signal_object->set_connection(SIGNAL_D(cl_remote_control::emit_signal_to_system), handler_object, HANDLER_D(cl_application::handle_signal_from_remote_control));
 
+	handler_object = find_object_by_name("server");
+	signal_object->set_connection(SIGNAL_D(cl_remote_control::emit_signal_to_server), handler_object, HANDLER_D(cl_server::handle_signal_from_remote_control));
 
-	while (cin >> signal_object_path) {
-		// Условие завершения построения связей
-		if (signal_object_path == "end_of_connections") {
-			break;
-		}
-		cin >> handler_object_path;
+	signal_object = find_object_by_name("safe");
+	handler_object = find_object_by_name("remote_control");
+	signal_object->set_connection(SIGNAL_D(cl_safe::emit_signal_to_remote_control), handler_object, HANDLER_D(cl_remote_control::handle_signal_from_safe));
 
-		signal_object = find_object_by_path(signal_object_path);
-
-		// Если объект, выдающий сигнал, не найден
-		if (signal_object == nullptr) {
-			cout << "\nObject " << signal_object_path << " not found";
-			continue;
-		}
-
-		handler_object = find_object_by_path(handler_object_path);
-
-		// Если объект-обработчик не найден
-		if (handler_object == nullptr) {
-			cout << "\nHandler object " << handler_object_path << " not found";
-			continue;
-		}
-
-		signal_object->set_connection(get_signal_method(signal_object), handler_object, get_handler_method(handler_object));
-	}
+	signal_object = find_object_by_name("server");
+	signal_object->set_connection(SIGNAL_D(cl_server::emit_signal_to_remote_control), handler_object, HANDLER_D(cl_remote_control::handle_signal_from_server));
 }
 
 // Метод запуска приложения
 int cl_application::exec_app() {
-	print_tree(4); // Вывод на консоль иерархического дерева объектов системы
-
-	set_readiness_for_all(1); // Установка всем объектам состояния готовности
-
-	string signal_object_path, handler_object_path; // Пути выдающего сигнал и целевого объекта
-	cl_base* signal_object, * handler_object; // Объект, выдающий сигнал, и целевой объект
-	string text, operation;
-	int state; // Состояние готовности
-
-	while (cin >> operation) {
-		// Команда END
-		if (operation == "END") {
-			break;
-		}
-		// Команда EMIT
-		else if (operation == "EMIT") {
-			cin >> signal_object_path;
-			getline(cin, text);
-
-			signal_object = find_object_by_path(signal_object_path);
-			// Если объект, выдающий сигнал, не найден
-			if (signal_object == nullptr) {
-				cout << "\nObject " << signal_object_path << " not found";
-				continue;
-			}
-			// Выдача сигнала
-			signal_object->emit_signal(get_signal_method(signal_object), text);
-		}
-		// Команда SET_CONNECT
-		else if (operation == "SET_CONNECT") {
-			cin >> signal_object_path >> handler_object_path;
-
-			signal_object = find_object_by_path(signal_object_path);
-			// Если объект, выдающий сигнал, не найден
-			if (signal_object == nullptr) {
-				cout << "\nObject " << signal_object_path << " not found";
-				continue;
-			}
-
-			handler_object = find_object_by_path(handler_object_path);
-			// Если объект-обработчик не найден
-			if (handler_object == nullptr) {
-				cout << "\nHandler object " << handler_object_path << " not found";
-				continue;
-			}
-			// Установка связи
-			signal_object->set_connection(get_signal_method(signal_object), handler_object, get_handler_method(handler_object));
-		}
-		// Команда DELETE_CONNECT
-		else if (operation == "DELETE_CONNECT") {
-			cin >> signal_object_path >> handler_object_path;
-
-			signal_object = find_object_by_path(signal_object_path);
-			// Если объект, выдающий сигнал, не найден
-			if (signal_object == nullptr) {
-				cout << "\nObject " << signal_object_path << " not found";
-				continue;
-			}
-
-			handler_object = find_object_by_path(handler_object_path);
-			// Если объект-обработчик не найден
-			if (handler_object == nullptr) {
-				cout << "\nHandler object " << handler_object_path << " not found";
-				continue;
-			}
-			// Удаление связи
-			signal_object->delete_connection(get_signal_method(signal_object), handler_object, get_handler_method(handler_object));
-		}
-		// Команда SET_CONDITION
-		else {
-			cin >> signal_object_path >> state;
-
-			signal_object = find_object_by_path(signal_object_path);
-			// Если объект, которому нужно установить состояние, не найден
-			if (signal_object == nullptr) {
-				cout << "\nObject " << signal_object_path << " not found";
-				continue;
-			}
-
-			signal_object->set_readiness(state); // Установка готовности
-		}
+	set_readiness_for_all();
+	cl_base* signal_object = find_object_by_name("remote_control");
+	cl_base* handler_object = find_object_by_name("reader");
+	string text;
+	while (system_indicator) {
+		signal_object->emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_reader), text);
 	}
 	return 0;
 }
@@ -174,7 +91,7 @@ void cl_application::handler_method(string input) {
 	string safe_box_name;
 	for (int i = 0; i < (first_value * second_value); i++) {
 		int test = i + 1;
-		safe_box_name = "safe_box ";
+		safe_box_name = "safe_box_";
 		safe_box_name += to_string(test);
 		new cl_safe_box(current_object, i + 1, safe_box_name);
 	}
@@ -202,4 +119,8 @@ cl_base::TYPE_HANDLER cl_application::get_handler_method(cl_base* pointer) {
 	else if (pointer->get_class_number() == 5) return HANDLER_D(cl_server::handler_method);
 	else if (pointer->get_class_number() == 6) return HANDLER_D(cl_screen::handler_method);
 	else return HANDLER_D(cl_reader::handler_method);*/
+}
+
+void cl_application::handle_signal_from_remote_control() {
+	system_indicator = false;
 }

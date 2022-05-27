@@ -7,6 +7,10 @@ cl_safe_box::cl_safe_box(cl_base* parent, int number, string name) :cl_base(pare
 	this->number = number;
 }
 
+int cl_safe_box::get_number() {
+	return number;
+}
+
 // Метод сигнала
 void cl_safe_box::signal_method(string& text) {
 	cout << "\nSignal from " << get_absolute_path();
