@@ -42,7 +42,6 @@ void cl_remote_control::handle_signal_from_reader(string text) {
 		else {
 			text = "error";
 			emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text); // Выводим на экран сообщение о вводе клиентского ключа
-			emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text); // Считываем следующую команду
 		}
 	}
 	else if (command == "BANK_KEY") {
@@ -61,7 +60,6 @@ void cl_remote_control::handle_signal_from_reader(string text) {
 		else {
 			text = "error";
 			emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text); // Выводим на экран сообщение о вводе клиентского ключа
-			emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text); // Считываем следующую команду
 		}
 		
 	}
@@ -76,7 +74,6 @@ void cl_remote_control::handle_signal_from_reader(string text) {
 		stage = 0;
 		text = "cancel";
 		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text); // Выводим на экран сообщение о вводе клиентского ключа
-		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text); // Считываем следующую команду
 	}
 	else if (command == "SHOWTREE") {
 
@@ -93,7 +90,6 @@ void cl_remote_control::handle_signal_from_safe(string text) {
 			string key = text.substr(text.find(' ') + 1, text.length());
 			text = text.substr(text.find(' ') + 1, text.length());
 			emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text); // Выводим на экран сообщение о вводе клиентского ключа
-			emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text); // Считываем следующую команду
 		}
 		else {
 			current_safe_box_number = stoi(text.substr(0, text.find(' '))); // Запоминаем, какую ячейку мы открываем
@@ -102,7 +98,6 @@ void cl_remote_control::handle_signal_from_safe(string text) {
 			else if (text == "needs_bank_key") stage = 3;
 			// Если закрыта, продолжаем наш забег
 			emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text); // Выводим на экран сообщение о вводе банковского ключа
-			emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text); // Считываем следующую команду
 		}
 		
 	}
@@ -124,7 +119,6 @@ void cl_remote_control::handle_signal_from_server(string text) {
 		text = "1"; 
 		correctness = "correct";
 		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text);
-		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text);
 	}
 	// Подошел ключ банка
 	else if (text == "2") {
@@ -134,20 +128,17 @@ void cl_remote_control::handle_signal_from_server(string text) {
 		text = "open " + to_string(current_safe_box_number);
 		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_safe), text);
 		stage = 0;
-		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text);
 	}
 	// Неверные данные
 	else if (text == "3") {
 		text = "client_incorrect";
 		correctness = "incorrect";
 		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text); // Уведомляем об ошибке
-		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text); // Считываем следующую команду
 	}
 	else if (text == "4") {
 		text = "bank_incorrect";
 		correctness = "incorrect";
 		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text); // Уведомляем об ошибке
-		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text); // Считываем следующую команду
 	}
 }
 
