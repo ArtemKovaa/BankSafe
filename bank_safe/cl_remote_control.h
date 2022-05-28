@@ -8,6 +8,8 @@ class cl_remote_control : public cl_base {
 
 private:
 	int current_safe_box_number;
+	int stage = 0;
+	string correctness;
 
 public:
 	cl_remote_control(cl_base* parent, string name = "Default");
@@ -17,8 +19,9 @@ public:
 	void handle_signal_from_safe(string text);
 	void emit_signal_to_server(string& text);
 	void handle_signal_from_server(string text);
-	void emit_signal_to_system();
-	void emit_signal_to_screen();
+	void handle_signal_from_system(string text);
+	void emit_signal_to_system(string& text);
+	void emit_signal_to_screen(string& text);
 };
 
 #endif

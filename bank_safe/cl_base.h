@@ -49,7 +49,7 @@ public:
 	string get_absolute_path(string absolute_path = "");
 	int get_class_number();
 	int get_readiness();
-	void set_readiness_for_all();
+	void set_readiness_for_all(int state);
 };
 
 #endif

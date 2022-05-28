@@ -32,46 +32,55 @@ void cl_safe::emit_signal_to_remote_control(string& text) {
 }
 
 void cl_safe::handle_signal_from_remote_control(string text) {
-	int choice = stoi(text.substr(0, text.find(' ')));
+	string choice = text.substr(0, text.find(' '));
 	text = text.substr(text.find(' ') + 1, text.length());
-	int number;
-	switch (choice) {
-	case 1:
-		number = stoi(text); // Ќомер €чейки
+	int number = stoi(text.substr(0, text.find(' '))); // Ќомер €чейки
+	text = text.substr(text.find(' ') + 1, text.length());
+	if (choice == "find") {
 		// ѕроход по всем €чейкам и поиск нужной
 		for (int i = 0; i < rows_count; i++) {
 			for (int j = 0; j < columns_count; j++) {
 				if (safe_boxes[i][j]->get_number() == number) {
 					// ѕроверка на то, что она закрыта
-					if (safe_boxes[i][j]->get_readiness() == 0) {
+					if (text == "first") {
+						if (safe_boxes[i][j]->get_readiness() == 3) {
+							text = "";
+							emit_signal(SIGNAL_D(cl_safe::emit_signal_to_remote_control), text);
+							return;
+						}
+						safe_boxes[i][j]->set_readiness(1);
 						text = to_string(number);
-						text += " 0"; // костыль
+						text += " needs_client_key"; 
 						emit_signal(SIGNAL_D(cl_safe::emit_signal_to_remote_control), text); // ѕередаем пульту номер €чейки
+						return;
 					}
-					// ≈сли открыта, выводим на экран надпись
 					else if (safe_boxes[i][j]->get_readiness() == 1) {
-						text = "1";
-						emit_signal(SIGNAL_D(cl_safe::emit_signal_to_remote_control), text);
+						safe_boxes[i][j]->set_readiness(2);
+						text = to_string(number);
+						text += " needs_bank_key"; 
+						emit_signal(SIGNAL_D(cl_safe::emit_signal_to_remote_control), text); // ѕередаем пульту номер €чейки
+						return;
 					}
 				}
 			}
 		}
-		break;
-	case 2:
-		/*number = stoi(text);
-		for (int i = 0; i < rows_count - 1; i++) {
-			for (int j = 0; j < columns_count - 1; j++) {
+	}
+	else if (choice == "open") {
+		for (int i = 0; i < rows_count; i++) {
+			for (int j = 0; j < columns_count; j++) {
 				if (safe_boxes[i][j]->get_number() == number) {
-					if (safe_boxes[i][j]->)
+					safe_boxes[i][j]->set_readiness(3); // открываем €чейку
 				}
 			}
-		}*/
-		break;
-	case 3:
-
-		break;
-	case 4:
-
-		break;
+		}
+	}
+	else if (choice == "close") {
+		for (int i = 0; i < rows_count; i++) {
+			for (int j = 0; j < columns_count; j++) {
+				if (safe_boxes[i][j]->get_number() == number) {
+					safe_boxes[i][j]->set_readiness(1); // закрываем €чейку
+				}
+			}
+		}
 	}
 }

@@ -223,16 +223,8 @@ int cl_base::get_readiness() {
 }
 
 // Установка готовности для всех объектов
-void cl_base::set_readiness_for_all() {
-	this->set_readiness(1); // Установка готовности корневому объекту
+void cl_base::set_readiness_for_all(int state) {
+	this->set_readiness(state); // Установка готовности корневому объекту
 	// Рекурсивный вызов метода для всех подчиненных объектов
-	for (int i = 0; i < children.size(); i++) {
-		if (children[i]->class_number == 4) {
-			children[i]->set_readiness(0);
-		}
-		else {
-			children[i]->set_readiness_for_all();
-		}
-		
-	}
+	for (int i = 0; i < children.size(); i++) children[i]->set_readiness_for_all(state);
 }
