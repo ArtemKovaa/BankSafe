@@ -150,6 +150,10 @@ void cl_application::handle_signal_from_remote_control(string text) {
 	if (text == "turn_off") {
 		system_indicator = false;
 	}
+	else if (text == "show_tree") {
+		print_readiness_tree(4);
+		system_indicator = false;
+	}
 }
 
 void cl_application::emit_signal_to_screen(string& text) {

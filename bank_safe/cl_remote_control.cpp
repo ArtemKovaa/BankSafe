@@ -15,6 +15,11 @@ void cl_remote_control::handle_signal_from_reader(string text) {
 		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text);
 		return;
 	}
+	else if (text == "SHOWTREE") {
+		text = "show_tree";
+		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_system), text);
+		return;
+	}
 	int number;
 	string command = (text.substr(0, text.find(' '))); // Получаем команду для выполнения
 	text = text.substr(text.find(' ') + 1, text.length());
@@ -74,9 +79,6 @@ void cl_remote_control::handle_signal_from_reader(string text) {
 		stage = 0;
 		text = "cancel";
 		emit_signal(SIGNAL_D(cl_remote_control::emit_signal_to_screen), text); // Выводим на экран сообщение о вводе клиентского ключа
-	}
-	else if (command == "SHOWTREE") {
-
 	}
 }
 
@@ -143,7 +145,7 @@ void cl_remote_control::handle_signal_from_server(string text) {
 }
 
 void cl_remote_control::emit_signal_to_system(string& text) {
-	if (!(text == "turn_off")) text = "command";
+	if (!(text == "turn_off") && !(text == "show_tree")) text = "command";
 }
 
 void cl_remote_control::emit_signal_to_screen(string& text) {
